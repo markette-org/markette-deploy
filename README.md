@@ -220,6 +220,11 @@ The hosted setup (markette.org) splits the two:
   of markette-web. Netlify proxies `/api`, `/media`, `/admin`, `/static`, `/mcp` and `/downloads`
   to the server, so the browser stays on one origin. Repository secrets `NETLIFY_AUTH_TOKEN` and
   `NETLIFY_SITE_ID`, variable `MARKETTE_API_ORIGIN`; the custom domain is set on the Netlify site.
+- **markette.org/markette-web/** — the same app on GitHub Pages, published by the
+  [Pages workflow](https://github.com/markette-org/markette-web/blob/main/.github/workflows/pages.yml).
+  Pages cannot proxy, so this build calls `MARKETTE_API_ORIGIN` directly: add `https://markette.org`
+  to `CORS_ALLOWED_ORIGINS` and `DJANGO_CSRF_TRUSTED_ORIGINS`. OAuth and SSO redirects still land on
+  `FRONTEND_URL`, so connect networks from the main app.
 - **api.markette.org** — this compose stack. On a host where Traefik runs in Swarm mode,
   `traefik/docker-stack.yml` adds a small nginx service on Traefik's network that forwards to the
   stack's web port (Traefik only routes Swarm services):
