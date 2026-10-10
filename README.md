@@ -211,20 +211,17 @@ Open `http://localhost:8080` (or `WEB_PORT`). Run exactly one `beat` container; 
 Put it behind a TLS-terminating proxy for production: OAuth providers, Stripe live mode and the
 mobile apps expect HTTPS.
 
-### Web app on Netlify, API on its own domain
+### Web app on GitHub Pages, API on its own domain
 
 The hosted setup (markette.org) splits the two:
 
-- **app.markette.org** — the Angular app on Netlify, published by the
-  [Netlify workflow](https://github.com/markette-org/markette-web/blob/main/.github/workflows/netlify.yml)
-  of markette-web. Netlify proxies `/api`, `/media`, `/admin`, `/static`, `/mcp` and `/downloads`
-  to the server, so the browser stays on one origin. Repository secrets `NETLIFY_AUTH_TOKEN` and
-  `NETLIFY_SITE_ID`, variable `MARKETTE_API_ORIGIN`; the custom domain is set on the Netlify site.
-- **markette.org/markette-web/** — the same app on GitHub Pages, published by the
-  [Pages workflow](https://github.com/markette-org/markette-web/blob/main/.github/workflows/pages.yml).
-  Pages cannot proxy, so this build calls `MARKETTE_API_ORIGIN` directly: add `https://markette.org`
-  to `CORS_ALLOWED_ORIGINS` and `DJANGO_CSRF_TRUSTED_ORIGINS`. OAuth and SSO redirects still land on
-  `FRONTEND_URL`, so connect networks from the main app.
+- **app.markette.org** — the Angular app on GitHub Pages, published by the
+  [Pages workflow](https://github.com/markette-org/markette-web/blob/main/.github/workflows/pages.yml)
+  of markette-web (custom domain set in the repository's Pages settings). Pages cannot proxy, so the
+  build calls `MARKETTE_API_ORIGIN` (default `https://api.markette.org`) directly, cross-origin.
+  The [Netlify workflow](https://github.com/markette-org/markette-web/blob/main/.github/workflows/netlify.yml)
+  publishes optional pull-request previews; Netlify proxies `/api` and the other server paths, so
+  previews need no CORS entry.
 - **api.markette.org** — this compose stack. On a host where Traefik runs in Swarm mode,
   `traefik/docker-stack.yml` adds a small nginx service on Traefik's network that forwards to the
   stack's web port (Traefik only routes Swarm services):
@@ -236,7 +233,7 @@ EDGE_PLACEMENT='node.hostname == <this host>' MARKETTE_UPSTREAM=http://<host-ip>
 
 Then set in `.env`: `PUBLIC_API_URL=https://api.markette.org`, `FRONTEND_URL=https://app.markette.org`,
 both hosts in `DJANGO_ALLOWED_HOSTS`, both origins in `DJANGO_CSRF_TRUSTED_ORIGINS`, and
-`CORS_ALLOWED_ORIGINS=https://app.markette.org`. OAuth callbacks are `https://api.markette.org/api/oauth/<network>/callback`.
+`CORS_ALLOWED_ORIGINS=https://app.markette.org` (required: the app calls the API cross-origin). OAuth callbacks are `https://api.markette.org/api/oauth/<network>/callback`.
 
 ### From source
 
