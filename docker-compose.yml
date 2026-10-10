@@ -1,0 +1,97 @@
+# Markette: self-hosted publishing, scheduling and analytics.
+#   cp .env.example .env   # then edit it
+#   docker compose up -d   # pulls the published images; open http://localhost:8080
+# To build from source checkouts instead, see docker-compose.build.yml.
+name: markette
+
+x-server: &server
+  image: ghcr.io/markette-org/markette-server:${MARKETTE_VERSION:-latest}
+  env_file: .env
+  environment:
+    POSTGRES_HOST: db
+    POSTGRES_PORT: "5432"
+    REDIS_URL: redis://redis:6379/0
+    MEDIA_ROOT: /app/media
+    HUGO_WORKDIR: /app/var/hugo
+  volumes:
+    - media:/app/media
+    - hugo:/app/var/hugo
+  depends_on:
+    db:
+      condition: service_healthy
+    redis:
+      condition: service_started
+  restart: unless-stopped
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-markette}
+      POSTGRES_USER: ${POSTGRES_USER:-markette}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-markette}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-markette}"]
+      interval: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+
+  migrate:
+    <<: *server
+    command: python manage.py migrate --noinput
+    restart: "no"
+
+  api:
+    <<: *server
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  worker:
+    <<: *server
+    command: celery -A markette worker --loglevel=INFO --concurrency=4
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  # Exactly one beat process: it drives the scheduler tick.
+  beat:
+    <<: *server
+    command: celery -A markette beat --loglevel=INFO --schedule=/tmp/celerybeat-schedule
+    volumes: []
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  # MCP server for AI assistants, served at {PUBLIC_API_URL}/mcp through the web container.
+  mcp:
+    <<: *server
+    command: uvicorn mcp_server.server:app --host 0.0.0.0 --port 8001 --proxy-headers --forwarded-allow-ips "*"
+    environment:
+      MARKETTE_API_URL: http://api:8000
+    volumes: []
+    depends_on:
+      - api
+
+  web:
+    image: ghcr.io/markette-org/markette-web:${MARKETTE_VERSION:-latest}
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    volumes:
+      # Optional: drop markette.apk here to offer the Android app at /downloads/markette.apk
+      - ./downloads:/usr/share/nginx/html/downloads:ro
+    depends_on:
+      - api
+      - mcp
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  media:
+  hugo:

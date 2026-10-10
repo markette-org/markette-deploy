@@ -1,0 +1,14 @@
+# Build the images from local checkouts instead of pulling them:
+#   docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
+# Expects markette-server and markette-web next to this repo (override with SERVER_SRC / WEB_SRC).
+x-server-build: &server-build
+  build: ${SERVER_SRC:-../markette-server}
+
+services:
+  migrate: *server-build
+  api: *server-build
+  worker: *server-build
+  beat: *server-build
+  mcp: *server-build
+  web:
+    build: ${WEB_SRC:-../markette-web}
