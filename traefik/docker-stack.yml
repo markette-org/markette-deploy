@@ -1,0 +1,40 @@
+# Publishes the Markette server at https://api.markette.org on a host where Traefik runs in
+# Docker Swarm mode (it only routes Swarm services, not docker compose containers).
+# A small nginx service joins Traefik's network and forwards to the compose stack's web port.
+#
+#   MARKETTE_UPSTREAM=http://<host-ip>:8085 MARKETTE_API_HOST=api.markette.org \
+#   EDGE_PLACEMENT='node.hostname == <host>' \
+#     docker stack deploy -c traefik/docker-stack.yml markette-edge
+services:
+  edge:
+    image: nginx:1.27-alpine
+    environment:
+      MARKETTE_UPSTREAM: ${MARKETTE_UPSTREAM:?set MARKETTE_UPSTREAM, e.g. http://203.0.113.10:8085}
+    configs:
+      - source: markette_edge_conf
+        target: /etc/nginx/templates/default.conf.template
+    networks:
+      - traefik-public
+    deploy:
+      replicas: 1
+      placement:
+        # Run next to the compose stack (on a multi-node swarm, other nodes cannot reach it).
+        constraints:
+          - ${EDGE_PLACEMENT:-node.role == manager}
+      labels:
+        traefik.enable: "true"
+        traefik.docker.network: traefik-public
+        traefik.http.routers.markette-api.rule: Host(`${MARKETTE_API_HOST:-api.markette.org}`)
+        traefik.http.routers.markette-api.entrypoints: websecure
+        traefik.http.routers.markette-api.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-secure}
+        traefik.http.routers.markette-api.service: markette-api-svc
+        traefik.http.services.markette-api-svc.loadbalancer.server.port: "80"
+        traefik.http.services.markette-api-svc.loadbalancer.passHostHeader: "true"
+
+configs:
+  markette_edge_conf:
+    file: ./edge.conf.template
+
+networks:
+  traefik-public:
+    external: true

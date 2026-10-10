@@ -1,0 +1,19 @@
+# Rendered by the nginx image (envsubst) at start-up.
+server {
+    listen 80;
+    server_name _;
+    client_max_body_size 210m;
+
+    location / {
+        proxy_pass ${MARKETTE_UPSTREAM};
+        proxy_http_version 1.1;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        # TLS ends at Traefik; tell Django the request was HTTPS.
+        proxy_set_header X-Forwarded-Proto https;
+        # MCP streams responses.
+        proxy_buffering off;
+        proxy_read_timeout 300s;
+    }
+}

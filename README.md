@@ -211,6 +211,28 @@ Open `http://localhost:8080` (or `WEB_PORT`). Run exactly one `beat` container; 
 Put it behind a TLS-terminating proxy for production: OAuth providers, Stripe live mode and the
 mobile apps expect HTTPS.
 
+### Web app on Netlify, API on its own domain
+
+The hosted setup (markette.org) splits the two:
+
+- **app.markette.org** — the Angular app on Netlify, published by the
+  [Netlify workflow](https://github.com/markette-org/markette-web/blob/main/.github/workflows/netlify.yml)
+  of markette-web. Netlify proxies `/api`, `/media`, `/admin`, `/static`, `/mcp` and `/downloads`
+  to the server, so the browser stays on one origin. Repository secrets `NETLIFY_AUTH_TOKEN` and
+  `NETLIFY_SITE_ID`, variable `MARKETTE_API_ORIGIN`; the custom domain is set on the Netlify site.
+- **api.markette.org** — this compose stack. On a host where Traefik runs in Swarm mode,
+  `traefik/docker-stack.yml` adds a small nginx service on Traefik's network that forwards to the
+  stack's web port (Traefik only routes Swarm services):
+
+```bash
+EDGE_PLACEMENT='node.hostname == <this host>' MARKETTE_UPSTREAM=http://<host-ip>:8085 \
+  docker stack deploy -c traefik/docker-stack.yml markette-edge
+```
+
+Then set in `.env`: `PUBLIC_API_URL=https://api.markette.org`, `FRONTEND_URL=https://app.markette.org`,
+both hosts in `DJANGO_ALLOWED_HOSTS`, both origins in `DJANGO_CSRF_TRUSTED_ORIGINS`, and
+`CORS_ALLOWED_ORIGINS=https://app.markette.org`. OAuth callbacks are `https://api.markette.org/api/oauth/<network>/callback`.
+
 ### From source
 
 Clone the repositories side by side and build the images locally:
