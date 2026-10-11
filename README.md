@@ -75,6 +75,20 @@ hands them to workers. Transient failures back off exponentially, or for as long
 before retrying* target. It is never retried blindly, which would risk a duplicate post. Mastodon publishes
 also send an `Idempotency-Key`.
 
+### Announcing a publication elsewhere
+
+A publication can **wait for** another one, in the same post or in any other post of the workspace, and link
+to it. Example: announce a DEV or WordPress article on X and Bluesky. Once the article is live, the waiting
+publications are scheduled (right after it, after a delay, in the next queue slot or at the best time). Their
+text gets the article's address in place of `{url}` and its title in place of `{title}`. Without `{url}`, the
+address is added at the end. Choose this in the composer, in each channel's tab ("Wait for another
+publication"), or click **Announce** on a publication in the post page. Through the API, set a target's `follows`
+(a target id) or `follows_channel` (another channel of the same post), plus `follow_mode` and `follow_delay`
+(minutes); the MCP tool `create_post` takes `follows_target_id`.
+
+If the article fails, its followers keep waiting and go out when it is retried. If it is cancelled or deleted,
+they fail with an explanation.
+
 ### Best time to post
 
 `insights/engine.py` keeps a 7×24 grid of scores (weekday × local hour) per channel:
