@@ -71,9 +71,22 @@ Every target gets its own `scheduled_at`, chosen by one of these modes:
 Celery beat runs `dispatch_due_targets` every `SCHEDULER_TICK_SECONDS` (default 15 s). It claims due
 targets with `SELECT … FOR UPDATE SKIP LOCKED`, so several schedulers or workers never double-publish, and
 hands them to workers. Transient failures back off exponentially, or for as long as the network's
-`Retry-After` says, up to `PUBLISH_MAX_ATTEMPTS`. A worker that dies mid-publish leaves a *failed, check
-before retrying* target. It is never retried blindly, which would risk a duplicate post. Mastodon publishes
-also send an `Idempotency-Key`.
+`Retry-After` says, up to `PUBLISH_MAX_ATTEMPTS`.
+
+Locking stops two workers from sending the same publication, but not a network that publishes the post and
+then loses its answer (a timeout after the request was sent, a dropped connection, a 502/504 from a gateway,
+or a worker that dies mid-call). Markette never retries those blindly:
+
+- **Mastodon** sends a stable `Idempotency-Key`, so the server drops a repeat (for one hour).
+- **DEV** and **Bluesky** look for the earlier post first (your latest articles, or your repository's
+  latest records) and adopt it instead of publishing again.
+- **Every other network** marks the publication *unconfirmed* ("Needs checking"). Nothing retries it, not
+  even *Retry failed*. Publications waiting for it keep waiting. On the post's page someone checks the network
+  and answers either *It is live*, optionally pasting its address (needed when others link to it), or *It is
+  not there: publish again*. The post's other channels are not touched.
+
+A request that never reached the network (connection refused, connect timeout) and a timeout while
+refreshing a login token are always plain retries.
 
 ### Announcing a publication elsewhere
 
