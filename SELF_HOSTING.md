@@ -235,7 +235,8 @@ Without a server app, users connect Slack with a bot token (see section 6). With
 2. Under **OAuth & Permissions**:
    - Add the redirect URL `{PUBLIC_API_URL}/api/oauth/slack/callback`.
    - Add the **bot token scopes** `chat:write, chat:write.public, channels:read, channels:join,
-     groups:read, files:write, files:read, team:read`.
+     groups:read, channels:history, groups:history, files:write, files:read, team:read`. The two history
+     scopes let Markette check whether a message whose answer was lost was posted, instead of asking you.
 3. Under **Manage Distribution**, turn on **public distribution** so that other workspaces can install the
    app. Slack Marketplace listing is not required.
 4. From **Basic Information → App Credentials**, copy the **Client ID** and **Client Secret** into

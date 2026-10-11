@@ -78,15 +78,21 @@ then loses its answer (a timeout after the request was sent, a dropped connectio
 or a worker that dies mid-call). Markette never retries those blindly:
 
 - **Mastodon** sends a stable `Idempotency-Key`, so the server drops a repeat (for one hour).
-- **DEV** and **Bluesky** look for the earlier post first (your latest articles, or your repository's
-  latest records) and adopt it instead of publishing again.
-- **Every other network** marks the publication *unconfirmed* ("Needs checking"). Nothing retries it, not
+- **Drupal** posts get a UUID derived from the publication, so the earlier node is read back by its ID.
+- **DEV, Bluesky, WordPress, Slack and LinkedIn pages** look for the earlier post first (latest articles,
+  repository records, posts, channel messages or page posts) and adopt it instead of publishing again.
+  Slack needs the `channels:history`/`groups:history` scopes for this. If the check itself is refused,
+  the publication goes to *unconfirmed* rather than being published again.
+- **Every other network** marks the publication *unconfirmed* ("Needs checking"). That covers X, LinkedIn
+  profiles, Discord webhooks, Telegram and the rest: they cannot read your own posts back, or not without
+  paid API access. Nothing retries it, not
   even *Retry failed*. Publications waiting for it keep waiting. On the post's page someone checks the network
   and answers either *It is live*, optionally pasting its address (needed when others link to it), or *It is
   not there: publish again*. The post's other channels are not touched.
 
-A request that never reached the network (connection refused, connect timeout) and a timeout while
-refreshing a login token are always plain retries.
+A request that never reached the network (connection refused, connect timeout) is always a plain retry.
+So is a lost answer while refreshing a login token or uploading media (steps marked `@repeatable`, which
+put nothing online).
 
 ### Announcing a publication elsewhere
 
@@ -310,7 +316,7 @@ Register these OAuth callback URLs (`PUBLIC_API_URL` must be the public HTTPS UR
 | Reddit | reddit.com/prefs/apps (after approval under Reddit's Responsible Builder Policy) | `…/api/oauth/reddit/callback`, app type *web app*. Set `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET` and a descriptive `REDDIT_USER_AGENT`. Scopes: `identity submit read mysubreddits flair edit`. |
 | YouTube | console.cloud.google.com | Enable YouTube Data API v3, create a Web OAuth client with redirect `…/api/oauth/youtube/callback`, set `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`. **Uploads stay private until the project passes YouTube's API audit.** |
 | Discord | server admin | Channel → Integrations → Webhooks → copy the URL. |
-| Slack | workspace member who can install apps | Without a server app: create an app at api.slack.com/apps, add the bot scopes `chat:write, chat:write.public, channels:read, channels:join, groups:read, files:write, files:read, team:read`, install it to the workspace and paste the *Bot User OAuth Token* (`xoxb-…`). Optional server app for *Add to Slack*: the same scopes, redirect URL `…/api/oauth/slack/callback`, public distribution on, and `SLACK_CLIENT_ID`/`SLACK_CLIENT_SECRET` (or Platform → Settings). Every public channel can be added; private channels after adding the app to them. |
+| Slack | workspace member who can install apps | Without a server app: create an app at api.slack.com/apps, add the bot scopes `chat:write, chat:write.public, channels:read, channels:join, groups:read, channels:history, groups:history, files:write, files:read, team:read`, install it to the workspace and paste the *Bot User OAuth Token* (`xoxb-…`). Optional server app for *Add to Slack*: the same scopes, redirect URL `…/api/oauth/slack/callback`, public distribution on, and `SLACK_CLIENT_ID`/`SLACK_CLIENT_SECRET` (or Platform → Settings). Every public channel can be added; private channels after adding the app to them. |
 | Ghost | site owner | Settings → Integrations → custom integration → Admin API key; optionally a newsletter slug to email posts. |
 | Brevo | account owner | API key and a verified sender; each contact list becomes a channel. |
 | Listmonk | instance admin | Admin → Users → API user + token; each list becomes a channel. |
