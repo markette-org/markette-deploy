@@ -3,6 +3,9 @@
 Self-host [Markette](https://github.com/markette-org): this repository has everything to run it with Docker.
 The rest of this page describes the whole system: architecture, scheduling, networks and configuration.
 
+**Setting up your own server?** Start with the [self-hosting guide](SELF_HOSTING.md): install, first sign-in,
+and where to find the keys for every network, AI provider and Stripe.
+
 
 Multi-tenant publishing for social networks and websites: write once, tailor per channel,
 schedule precisely, and measure what each post did. Like Mixpost, plus a real scheduler, a
@@ -258,6 +261,8 @@ Copy a built `markette.apk` into `downloads/` to offer it at `/downloads/markett
 
 ## Connecting networks (server admin, once)
 
+Step-by-step instructions for each network are in the [self-hosting guide](SELF_HOSTING.md#5-networks-that-need-a-server-app-server-admin-once).
+
 Register these OAuth callback URLs (`PUBLIC_API_URL` must be the public HTTPS URL of the API):
 
 | Network | Where | Callback / notes |
@@ -274,6 +279,7 @@ Register these OAuth callback URLs (`PUBLIC_API_URL` must be the public HTTPS UR
 | WeChat | Official Account owner | A **verified** Official Account (unverified/personal accounts can only create drafts via API). Add the server IP to 设置与开发 → 基本配置 → IP白名单. Mode *push* uses the mass-send quota; *publish* gives a permanent link without notifying followers. |
 | QQ | QQ Open Platform | Create a bot at q.qq.com, set its callback URL to `{PUBLIC_API_URL}/api/channels/qq/webhook/<AppID>/`. Groups: add the bot, @-mention it once, and the group owner must enable 「机器人主动在群聊内发言」 (proactive group messages, since 2026-06). QQ refuses links in group messages. Guild text channels are listed automatically. |
 | Threads | developers.facebook.com | A Meta app with the **Threads** use case; set `THREADS_APP_ID`/`THREADS_APP_SECRET` (or Platform → Settings) and the redirect URI `…/api/oauth/threads/callback`. Permissions: threads_basic, threads_content_publish, threads_manage_insights, threads_manage_replies. 500 characters, ≤5 links, 250 posts/24 h. |
+| Reddit | reddit.com/prefs/apps (after approval under Reddit's Responsible Builder Policy) | `…/api/oauth/reddit/callback`, app type *web app*. Set `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET` and a descriptive `REDDIT_USER_AGENT`. Scopes: `identity submit read mysubreddits flair edit`. |
 | YouTube | console.cloud.google.com | Enable YouTube Data API v3, create a Web OAuth client with redirect `…/api/oauth/youtube/callback`, set `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`. **Uploads stay private until the project passes YouTube's API audit.** |
 | Discord | server admin | Channel → Integrations → Webhooks → copy the URL. |
 | Slack | workspace member who can install apps | Without a server app: create an app at api.slack.com/apps, add the bot scopes `chat:write, chat:write.public, channels:read, channels:join, groups:read, files:write, files:read, team:read`, install it to the workspace and paste the *Bot User OAuth Token* (`xoxb-…`). Optional server app for *Add to Slack*: the same scopes, redirect URL `…/api/oauth/slack/callback`, public distribution on, and `SLACK_CLIENT_ID`/`SLACK_CLIENT_SECRET` (or Platform → Settings). Every public channel can be added; private channels after adding the app to them. |
