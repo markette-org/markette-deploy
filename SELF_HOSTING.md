@@ -13,7 +13,7 @@ this page is the checklist.
 5. [Networks that need a server app](#5-networks-that-need-a-server-app-server-admin-once): X, LinkedIn,
    Facebook and Instagram, Threads, YouTube, Reddit, Slack (optional)
 6. [Networks where each user brings a key](#6-networks-where-each-user-brings-a-key): Mastodon, Bluesky,
-   Telegram, Discord, Slack, WhatsApp, QQ, WeChat, WordPress, Drupal, Ghost, Medium, Hugo, Brevo,
+   Telegram, Discord, Slack, WhatsApp, QQ, WeChat, WordPress, Drupal, Ghost, Medium, DEV, Hugo, Brevo,
    Listmonk, webhook
 7. [AI assistance](#7-ai-assistance-optional)
 8. [Billing with Stripe](#8-billing-with-stripe-optional)
@@ -34,7 +34,7 @@ You need:
   addresses (only `localhost` is sometimes allowed), and Stripe live mode and the mobile apps need HTTPS
   too. Any reverse proxy works: Caddy, Traefik, nginx with Let's Encrypt, or a tunnel.
 - The `/media/` path must be reachable from the internet, because Instagram, Facebook and Threads
-  download the images and videos from your server instead of receiving them.
+  download the images and videos from your server instead of receiving them, and DEV articles link to them.
 
 Choose one of two layouts:
 
@@ -265,6 +265,7 @@ The connect dialog repeats these hints.
 | **Drupal** | Site URL, Basic auth username and password, or a Simple OAuth token, plus the content type | Enable **JSON:API** with write operations allowed (`/admin/config/services/jsonapi`), plus **HTTP Basic Authentication** or **Simple OAuth**. |
 | **Ghost** | Admin URL, **Admin API key**, optional newsletter slug | Ghost Admin → Settings → **Integrations → Add custom integration** → Admin API key. The newsletter slug (e.g. `default-newsletter`) also emails each post to members. |
 | **Medium** | Integration token | Medium → Settings → Security and apps → Integration tokens. Medium stopped issuing new tokens in 2023, so this works only for accounts that already have one. |
+| **DEV** (dev.to or another Forem community) | **API key**, optionally an organization and the community address | dev.to → Settings → **Extensions → DEV Community API Keys → Generate API Key**. To publish under an organization you belong to, enter its username (from `dev.to/<username>`). Forem has no image upload API: images are linked from `{PUBLIC_API_URL}/media/`, so it must be public. |
 | **Hugo** | Repository URL, branch, content folder, site URL, and a token or deploy key | A token with push rights (GitHub fine-grained token with *Contents: read and write*; user `x-access-token`), or an SSH deploy key with write access. Your own CI builds and deploys the site on push. |
 | **Brevo** | API key and a verified sender | Brevo → **SMTP & API → API keys**; the sender in **Senders & IPs**. Each contact list becomes a channel. |
 | **Listmonk** | URL, API user and token | Listmonk → Admin → **Users → New API user**. Each list becomes a channel. |
@@ -326,7 +327,7 @@ Markette and prove each email domain with the DNS TXT record shown.
 - [ ] A strong `POSTGRES_PASSWORD`
 - [ ] Backups of the `pgdata` and `media` volumes (and `hugo` if you use Hugo), e.g. a nightly
       `docker compose exec -T db pg_dump -U markette markette | gzip > markette-$(date +%F).sql.gz`
-- [ ] `/media/` reachable from the internet (Instagram, Facebook, Threads)
+- [ ] `/media/` reachable from the internet (Instagram, Facebook, Threads, DEV)
 - [ ] Exactly one `beat` container
 - [ ] Callback URLs registered with the exact `PUBLIC_API_URL`
 - [ ] Logs: `docker compose logs -f api worker beat`

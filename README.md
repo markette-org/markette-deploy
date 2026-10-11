@@ -17,7 +17,7 @@ OpenAI-compatible API) for timing, campaign planning and per-network copy.
 | Social | X, Threads, Bluesky, Mastodon (any instance), LinkedIn (members, and company pages via the Community Management API), Facebook Pages, Instagram professional accounts, YouTube (video uploads and Shorts), Telegram channels and groups (Bot API), Discord (channel webhooks), Slack (public and private channels, through a bot token or "Add to Slack"), WhatsApp broadcast lists (Cloud API templates), QQ groups and QQ Guild channels (bot API) |
 | Newsletters | Brevo and Listmonk (one channel per mailing list; each post becomes an email campaign) |
 | Integrations | Generic signed webhook: every post as JSON to n8n, Make, Zapier or your own code |
-| Sites | WordPress (REST API with application passwords), Drupal (JSON:API), Ghost (posts, optionally emailed to members), Medium (integration token; see below), WeChat Official Accounts (articles), Hugo (git: page bundle commit + push) |
+| Sites | WordPress (REST API with application passwords), Drupal (JSON:API), Ghost (posts, optionally emailed to members), Medium (integration token; see below), DEV / dev.to and other Forem communities (API key), WeChat Official Accounts (articles), Hugo (git: page bundle commit + push) |
 
 ## Architecture
 
@@ -197,6 +197,7 @@ What each network exposes differs:
 | Discord, Webhook | none |
 | WordPress / Drupal | approved comments |
 | Medium | none (Medium's API has no statistics) |
+| DEV (Forem) | page views, reactions, comments; followers (personal accounts) |
 | Hugo | none (add your site analytics) |
 
 ## Running it
@@ -288,6 +289,7 @@ Register these OAuth callback URLs (`PUBLIC_API_URL` must be the public HTTPS UR
 | Listmonk | instance admin | Admin → Users → API user + token; each list becomes a channel. |
 | Webhook | you | Any URL accepting POST JSON; verify `X-Markette-Signature` = sha256 HMAC of `<X-Markette-Timestamp>.<body>` with the channel's signing secret. |
 | Medium | nothing to do | Users paste an existing integration token. Medium stopped issuing new tokens in 2023 and no longer supports the API; it can create posts (to a profile or a publication, with a canonical URL) but not edit, delete or read stats. |
+| DEV (Forem) | nothing to do | Users paste an API key (dev.to → Settings → Extensions → DEV Community API Keys); optionally an organization username, or another Forem community's address. Images are linked from `/media/`, so it must be public. Deleting unpublishes the article (the API cannot delete). |
 | Hugo | repo owner | A token with push rights (e.g. GitHub fine-grained token, *Contents: read & write*) or a deploy key with write access. Your CI builds and deploys the site on push. |
 
 Instagram and Facebook fetch media by URL, so `/media/` must be reachable from the internet. The bundled
