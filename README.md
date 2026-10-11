@@ -11,7 +11,7 @@ OpenAI-compatible API) for timing, campaign planning and per-network copy.
 
 | Kind | Destinations |
 |---|---|
-| Social | X, Threads, Bluesky, Mastodon (any instance), LinkedIn (members, and company pages via the Community Management API), Facebook Pages, Instagram professional accounts, YouTube (video uploads and Shorts), Telegram channels and groups (Bot API), Discord (channel webhooks), WhatsApp broadcast lists (Cloud API templates), QQ groups and QQ Guild channels (bot API) |
+| Social | X, Threads, Bluesky, Mastodon (any instance), LinkedIn (members, and company pages via the Community Management API), Facebook Pages, Instagram professional accounts, YouTube (video uploads and Shorts), Telegram channels and groups (Bot API), Discord (channel webhooks), Slack (public and private channels, through a bot token or "Add to Slack"), WhatsApp broadcast lists (Cloud API templates), QQ groups and QQ Guild channels (bot API) |
 | Newsletters | Brevo and Listmonk (one channel per mailing list; each post becomes an email campaign) |
 | Integrations | Generic signed webhook: every post as JSON to n8n, Make, Zapier or your own code |
 | Sites | WordPress (REST API with application passwords), Drupal (JSON:API), Ghost (posts, optionally emailed to members), Medium (integration token; see below), WeChat Official Accounts (articles), Hugo (git: page bundle commit + push) |
@@ -190,6 +190,7 @@ What each network exposes differs:
 | YouTube | views, likes, comments; subscribers |
 | Brevo / Listmonk | delivered (sent), unique opens, unique clicks; list size |
 | Ghost | emails delivered and opened; members |
+| Slack | member count only (no per-post statistics) |
 | Discord, Webhook | none |
 | WordPress / Drupal | approved comments |
 | Medium | none (Medium's API has no statistics) |
@@ -275,6 +276,7 @@ Register these OAuth callback URLs (`PUBLIC_API_URL` must be the public HTTPS UR
 | Threads | developers.facebook.com | A Meta app with the **Threads** use case; set `THREADS_APP_ID`/`THREADS_APP_SECRET` (or Platform → Settings) and the redirect URI `…/api/oauth/threads/callback`. Permissions: threads_basic, threads_content_publish, threads_manage_insights, threads_manage_replies. 500 characters, ≤5 links, 250 posts/24 h. |
 | YouTube | console.cloud.google.com | Enable YouTube Data API v3, create a Web OAuth client with redirect `…/api/oauth/youtube/callback`, set `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`. **Uploads stay private until the project passes YouTube's API audit.** |
 | Discord | server admin | Channel → Integrations → Webhooks → copy the URL. |
+| Slack | workspace member who can install apps | Without a server app: create an app at api.slack.com/apps, add the bot scopes `chat:write, chat:write.public, channels:read, channels:join, groups:read, files:write, files:read, team:read`, install it to the workspace and paste the *Bot User OAuth Token* (`xoxb-…`). Optional server app for *Add to Slack*: the same scopes, redirect URL `…/api/oauth/slack/callback`, public distribution on, and `SLACK_CLIENT_ID`/`SLACK_CLIENT_SECRET` (or Platform → Settings). Every public channel can be added; private channels after adding the app to them. |
 | Ghost | site owner | Settings → Integrations → custom integration → Admin API key; optionally a newsletter slug to email posts. |
 | Brevo | account owner | API key and a verified sender; each contact list becomes a channel. |
 | Listmonk | instance admin | Admin → Users → API user + token; each list becomes a channel. |
