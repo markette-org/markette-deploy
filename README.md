@@ -134,6 +134,30 @@ Under **Settings → Notifications**, workspace admins add destinations and choo
 Failed deliveries are retried for about 8 hours (1 min, 5 min, 30 min, 2 h, 6 h). A destination that
 fails 20 times in a row is switched off. Each one has a delivery log and a **Send a test** button.
 
+### Inbox
+
+**Inbox** gathers the replies, mentions and comments on the organization's channels. Each channel is polled
+every 5 to 30 minutes, depending on the network's rate limits. Team members see the channels they can use.
+Items can be read, marked done or reopened, filtered by channel and searched. Replies are sent from Markette
+as the channel, and the item links to the publication it answers. New items can also go out as `inbox.new`
+notifications.
+
+| Network | Collected | Reply from Markette |
+|---|---|---|
+| Mastodon | mentions and replies | yes (keeps the visibility, mentions the author) |
+| Bluesky | replies, mentions, quotes | yes (threaded) |
+| X | mentions and replies (needs paid API access; the free tier answers 403) | yes |
+| Facebook, Instagram | comments on the last 15 posts | yes (needs the comment permissions) |
+| Threads | replies to the last 15 posts | yes |
+| LinkedIn | comments on company page posts | yes |
+| YouTube | comments on the last 10 videos (every 30 min, to save quota) | yes (`youtube.force-ssl`) |
+| Reddit | comments on your last 10 posts | yes |
+| WordPress | comments on recent posts | yes |
+| DEV | comments on recent articles | no (Forem's API cannot post comments) |
+
+The first check of a channel brings in the last couple of days as unread and older items as read. When a
+network refuses (missing permission, no paid tier), the inbox shows why for that channel.
+
 ### Client approval links
 
 **Client approval** on a post's page creates a secret link (valid 3–30 days, withdrawable) for someone
@@ -395,7 +419,7 @@ Register these OAuth callback URLs (`PUBLIC_API_URL` must be the public HTTPS UR
 |---|---|---|
 | X | developer.x.com → app → User authentication (OAuth 2.0, Web App) | `…/api/oauth/x/callback`. Posting needs a paid API tier. Scopes: `tweet.read tweet.write users.read media.write offline.access`. |
 | LinkedIn | linkedin.com/developers | `…/api/oauth/linkedin/callback`. Add the products *Sign In with LinkedIn using OpenID Connect* and *Share on LinkedIn*. Company pages need *Community Management API*; then set `LINKEDIN_ORG_SCOPES=true`. |
-| Facebook + Instagram | developers.facebook.com (Business app) | `…/api/oauth/facebook/callback` (Instagram uses the same one). Permissions: `pages_show_list, pages_read_engagement, pages_manage_posts, read_insights, business_management, instagram_basic, instagram_content_publish, instagram_manage_insights`. Requires App Review for other users. |
+| Facebook + Instagram | developers.facebook.com (Business app) | `…/api/oauth/facebook/callback` (Instagram uses the same one). Permissions: `pages_show_list, pages_read_engagement, pages_manage_posts, pages_read_user_content, pages_manage_engagement, read_insights, business_management, instagram_basic, instagram_content_publish, instagram_manage_insights, instagram_manage_comments`. Requires App Review for other users. |
 | Mastodon | nothing to do | An app is registered automatically on each instance. |
 | Bluesky | nothing to do | Users enter their handle and an app password. |
 | Telegram | channel/group admin | Create a bot with @BotFather. Add it to the channel as an administrator with *Post messages* (and *Pin messages* to pin), or to the group as a member. Then paste the bot token; leave the chat empty to pick from the chats the bot was added to. |
@@ -404,7 +428,7 @@ Register these OAuth callback URLs (`PUBLIC_API_URL` must be the public HTTPS UR
 | WhatsApp | Meta Business | WhatsApp Business Account, phone number, permanent system-user token, and an approved MARKETING template whose body is `{{1}}` (optional IMAGE header). Webhook: `{PUBLIC_API_URL}/api/channels/whatsapp/webhook/` with the per-channel verify token, subscribed to `messages`; set `META_APP_SECRET` for signature checks. WhatsApp Channels have no API; groups via API are limited to 8 people, so broadcasts go to opted-in subscribers (JOIN / STOP). |
 | WeChat | Official Account owner | A **verified** Official Account (unverified/personal accounts can only create drafts via API). Add the server IP to 设置与开发 → 基本配置 → IP白名单. Mode *push* uses the mass-send quota; *publish* gives a permanent link without notifying followers. |
 | QQ | QQ Open Platform | Create a bot at q.qq.com, set its callback URL to `{PUBLIC_API_URL}/api/channels/qq/webhook/<AppID>/`. Groups: add the bot, @-mention it once, and the group owner must enable 「机器人主动在群聊内发言」 (proactive group messages, since 2026-06). QQ refuses links in group messages. Guild text channels are listed automatically. |
-| Threads | developers.facebook.com | A Meta app with the **Threads** use case; set `THREADS_APP_ID`/`THREADS_APP_SECRET` (or Platform → Settings) and the redirect URI `…/api/oauth/threads/callback`. Permissions: threads_basic, threads_content_publish, threads_manage_insights, threads_manage_replies. 500 characters, ≤5 links, 250 posts/24 h. |
+| Threads | developers.facebook.com | A Meta app with the **Threads** use case; set `THREADS_APP_ID`/`THREADS_APP_SECRET` (or Platform → Settings) and the redirect URI `…/api/oauth/threads/callback`. Permissions: threads_basic, threads_content_publish, threads_manage_insights, threads_manage_replies, threads_read_replies. 500 characters, ≤5 links, 250 posts/24 h. |
 | Reddit | reddit.com/prefs/apps (after approval under Reddit's Responsible Builder Policy) | `…/api/oauth/reddit/callback`, app type *web app*. Set `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET` and a descriptive `REDDIT_USER_AGENT`. Scopes: `identity submit read mysubreddits flair edit`. |
 | YouTube | console.cloud.google.com | Enable YouTube Data API v3, create a Web OAuth client with redirect `…/api/oauth/youtube/callback`, set `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`. **Uploads stay private until the project passes YouTube's API audit.** |
 | Discord | server admin | Channel → Integrations → Webhooks → copy the URL. |

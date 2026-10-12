@@ -173,9 +173,10 @@ Facebook and Instagram share one Meta app and one callback.
 4. In **App settings → Basic**, copy the **App ID** and **App secret**. Fill in the privacy policy URL and
    app domain, which Meta requires before going live.
 5. Set `META_APP_ID` and `META_APP_SECRET`. `META_GRAPH_VERSION` defaults to a recent Graph API version.
-6. Permissions requested: `pages_show_list, pages_read_engagement, pages_manage_posts, read_insights,
-   business_management, instagram_basic, instagram_content_publish, instagram_manage_insights,
-   instagram_manage_comments`.
+6. Permissions requested: `pages_show_list, pages_read_engagement, pages_manage_posts,
+   pages_read_user_content, pages_manage_engagement, read_insights, business_management, instagram_basic,
+   instagram_content_publish, instagram_manage_insights, instagram_manage_comments`. The comment permissions
+   feed the inbox. Pages connected before they were added need to be reconnected.
 7. While the app is in **development mode**, only people with a role on the app can connect. For
    everyone else: complete **Business verification**, request **Advanced access** for these permissions in
    **App Review** (with a screencast of the flow), then switch the app to **Live**.
@@ -194,7 +195,8 @@ The same `META_APP_SECRET` also verifies WhatsApp webhook signatures (see WhatsA
 3. Copy the **Threads app ID** and **Threads app secret** shown there. They differ from the main
    app ID.
 4. Set `THREADS_APP_ID` and `THREADS_APP_SECRET`.
-5. Permissions: `threads_basic, threads_content_publish, threads_manage_insights, threads_manage_replies`.
+5. Permissions: `threads_basic, threads_content_publish, threads_manage_insights, threads_manage_replies,
+   threads_read_replies` (the last two feed and answer the inbox).
    Add your Threads account as a tester (**App roles → Roles → Threads Testers**, then accept the invitation
    in Threads → Settings → Account → Website permissions) to test before App Review.
 
@@ -203,7 +205,8 @@ The same `META_APP_SECRET` also verifies WhatsApp webhook signatures (see WhatsA
 1. In [console.cloud.google.com](https://console.cloud.google.com), create a project and enable
    **YouTube Data API v3** (APIs & Services → Library).
 2. Configure the **OAuth consent screen**: External, with app name, support email, privacy policy and
-   authorized domain. Add the scopes `youtube.upload` and `youtube.readonly`. While the app is in
+   authorized domain. Add the scopes `youtube.upload`, `youtube.readonly` and `youtube.force-ssl` (the last one lets the
+   inbox answer comments). While the app is in
    **Testing**, add the Google accounts that will connect as **test users**.
 3. Go to **Credentials → Create credentials → OAuth client ID**, choose **Web application**, and add
    the authorized redirect URI `{PUBLIC_API_URL}/api/oauth/youtube/callback`.
