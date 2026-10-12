@@ -108,6 +108,32 @@ publication"), or click **Announce** on a publication in the post page. Through 
 If the article fails, its followers keep waiting and go out when it is retried. If it is cancelled or deleted,
 they fail with an explanation.
 
+### Notifications: email, Telegram status bot, webhooks
+
+Under **Settings → Notifications**, workspace admins add destinations and choose their events:
+
+| Event | When |
+|---|---|
+| `publication.published` | A channel's publication went live (with its address). |
+| `post.published` | Every channel of a post is live. |
+| `publication.failed` | A publication gave up, or a waiting announcement lost its source. |
+| `publication.unconfirmed` | A network may have published it but did not confirm ("Needs checking"). |
+| `channel.needs_reconnect` | A channel's authorization expired or was revoked (sent once). |
+| `approval.requested` / `approval.approved` / `approval.changes_requested` | The review workflow. |
+| `digest.daily` | 8:00 in the workspace's time zone: yesterday's results and today's plan. |
+
+- **Email** goes to the listed addresses, or to the workspace's admins and owners. It needs SMTP settings
+  on the server (`EMAIL_HOST`…, or Platform → Settings → Email).
+- **Telegram status bot**: create a bot with @BotFather, send it a message (or add it to a group, or as an
+  admin to a channel), paste the token and pick the chat. Markette lists the chats the bot has seen.
+- **Webhooks** POST JSON (`{"id", "event", "created_at", "workspace", "data"}`) with the headers
+  `X-Markette-Event`, `X-Markette-Delivery`, `X-Markette-Timestamp` and
+  `X-Markette-Signature: sha256=HMAC_SHA256(secret, "{timestamp}.{body}")`. The signing secret is shown
+  once when the webhook is created (and when it is replaced). Verify it, and reject old timestamps.
+
+Failed deliveries are retried for about 8 hours (1 min, 5 min, 30 min, 2 h, 6 h). A destination that
+fails 20 times in a row is switched off. Each one has a delivery log and a **Send a test** button.
+
 ### Best time to post
 
 `insights/engine.py` keeps a 7×24 grid of scores (weekday × local hour) per channel:

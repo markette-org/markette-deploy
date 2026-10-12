@@ -301,6 +301,16 @@ Only needed if you sell plans to other organizations.
 3. Turn on the **Customer Portal** in Stripe (Settings → Billing → Customer portal).
 4. In **Platform → Plans**, create plans and click **Create Stripe price**.
 
+## 8b. Email for notifications (optional)
+
+Workspaces send notifications to email, a Telegram status bot or webhooks (Settings → Notifications).
+Telegram and webhooks need nothing on the server. Email needs an SMTP server: any transactional provider
+(Postmark, Mailgun, Amazon SES, Brevo, Scaleway TEM…) or your own.
+
+Set `EMAIL_HOST`, `EMAIL_PORT` (587), `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `EMAIL_USE_TLS=true` and
+`DEFAULT_FROM_EMAIL`, or fill **Platform → Settings → Email**. Verify the sender's domain with your
+provider (SPF and DKIM records), or the messages land in spam.
+
 ## 9. Single sign-on (optional)
 
 Organization owners configure this themselves in **Organization → Single sign-on**. There is nothing to
