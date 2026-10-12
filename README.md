@@ -134,6 +134,18 @@ Under **Settings → Notifications**, workspace admins add destinations and choo
 Failed deliveries are retried for about 8 hours (1 min, 5 min, 30 min, 2 h, 6 h). A destination that
 fails 20 times in a row is switched off. Each one has a delivery log and a **Send a test** button.
 
+### Editing after publishing, and backlinks
+
+**Edit on …** on a published post's page changes the live post on networks that allow it: Mastodon,
+LinkedIn, Facebook, WordPress, Drupal, DEV, Slack, Discord (one-message posts) and Telegram (text, or a
+caption that fits). Only the text and title change; media stay. The new text is saved for that channel only.
+X (without Premium), Bluesky, Threads, Instagram and the rest do not offer edits through their APIs.
+
+**Link back to its announcements** (an option on channels that can be edited) closes the loop with
+announcements. Once the posts that announce a publication are live, Markette edits it to end with
+"Discuss this post on Bluesky · X", with their addresses (Markdown links on blogs). It updates the list as
+each announcement goes out. A failed edit is reported on the publication and changes nothing else.
+
 ### Threads
 
 On **X, Bluesky, Mastodon and Threads**, a channel's *Post as a thread* option (target option `thread`)
