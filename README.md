@@ -134,6 +134,18 @@ Under **Settings → Notifications**, workspace admins add destinations and choo
 Failed deliveries are retried for about 8 hours (1 min, 5 min, 30 min, 2 h, 6 h). A destination that
 fails 20 times in a row is switched off. Each one has a delivery log and a **Send a test** button.
 
+### Threads
+
+On **X, Bluesky, Mastodon and Threads**, a channel's *Post as a thread* option (target option `thread`)
+turns text longer than the network's limit into a chain of replies instead of refusing it. Lines made only of
+`---` mark where posts break; otherwise Markette breaks between paragraphs, then sentences, then words. Each
+post ends with `i/n` (turn off with `thread_numbering: false`). Images go on the first post. The composer shows
+how many posts it will make, counted the network's way.
+
+The first post goes through the normal publishing path (retries, duplicate guards). The replies follow right
+away, and progress is saved after each one. If a reply fails, the publication stays *published* with a note,
+and the post page offers **Continue the thread**, which picks up from the last post that went out.
+
 ### Link tracking (UTM tags and short links)
 
 In **Settings → Workspace → Link tracking**, admins can turn on, for social posts only (blogs and newsletters
