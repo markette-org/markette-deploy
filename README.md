@@ -134,6 +134,33 @@ Under **Settings → Notifications**, workspace admins add destinations and choo
 Failed deliveries are retried for about 8 hours (1 min, 5 min, 30 min, 2 h, 6 h). A destination that
 fails 20 times in a row is switched off. Each one has a delivery log and a **Send a test** button.
 
+### Client approval links
+
+**Client approval** on a post's page creates a secret link (valid 3–30 days, withdrawable) for someone
+without an account. The page shows each channel's version, the media and the planned times. They
+**approve** it, or **ask for changes** with a comment:
+
+- Approving counts like a reviewer's approval: a post waiting for team review gets its requested schedule.
+- Asking for changes takes the post off the schedule (its channels go back to draft) until someone schedules
+  it again.
+
+Their decision, name and comment are added to the post's review history and sent as `approval.approved` or
+`approval.changes_requested` notifications.
+
+### Reports
+
+**Settings → Reports** (admins) saves reports over the previous week, the previous month, or the last 7 or 30
+days:
+
+- **Emailed** every Monday or on the 1st at 8:00, workspace time. The email has a summary (totals, per
+  channel, top publications) and a CSV of every publication with its numbers. It needs the server's email
+  settings.
+- **Shared** as a read-only page (`/report/<token>`) with a CSV download, for clients without an account.
+  The link can be withdrawn at any time.
+
+**Export CSV** on the Analytics page downloads the same CSV for the current filters
+(`GET /api/analytics/export/`).
+
 ### Editing after publishing, and backlinks
 
 **Edit on …** on a published post's page changes the live post on networks that allow it: Mastodon,
