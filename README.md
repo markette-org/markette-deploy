@@ -134,6 +134,17 @@ Under **Settings → Notifications**, workspace admins add destinations and choo
 Failed deliveries are retried for about 8 hours (1 min, 5 min, 30 min, 2 h, 6 h). A destination that
 fails 20 times in a row is switched off. Each one has a delivery log and a **Send a test** button.
 
+### Importing past posts
+
+**Import past posts** on a channel brings in up to 200 of the account's latest posts (500 through the API:
+`POST /api/channels/{id}/import-history/ {"limit": n}`). They become published posts marked *Imported*,
+with their numbers when the listing has them; otherwise the metrics collector fetches them. Analytics and best
+times then start with real data, and best times are rebuilt right away. Posts already in Markette are skipped,
+so importing again only adds what is new.
+
+Supported: Mastodon, Bluesky, X (needs paid API access), Facebook, Instagram, Threads, LinkedIn pages, YouTube,
+Reddit (your posts in that subreddit), WordPress and DEV.
+
 ### Inbox
 
 **Inbox** gathers the replies, mentions and comments on the organization's channels. Each channel is polled
