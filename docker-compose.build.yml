@@ -1,5 +1,8 @@
 # Build the images from local checkouts instead of pulling them:
+#   ./build-local.sh            (recommended: builds each image once, one after the other)
 #   docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
+# The second form builds the server image once per service, in parallel; on Docker 24 that has
+# crashed the daemon (buildkit race), restarting every container on the host.
 # Expects markette-server and markette-web next to this repo (override with SERVER_SRC / WEB_SRC).
 x-server-build: &server-build
   build: ${SERVER_SRC:-../markette-server}

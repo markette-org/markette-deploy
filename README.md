@@ -397,8 +397,12 @@ Clone the repositories side by side and build the images locally:
 git clone https://github.com/markette-org/markette-server.git
 git clone https://github.com/markette-org/markette-web.git
 git clone https://github.com/markette-org/markette-deploy.git && cd markette-deploy
-docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
+./build-local.sh   # builds each image once, one after the other, then starts the stack
 ```
+
+Avoid `docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build` on a machine that runs
+other services: it builds the server image once per service, in parallel, and Docker 24's buildkit can crash
+the daemon on concurrent builds, restarting every container on the host.
 
 For development without Docker, see the READMEs of
 [markette-server](https://github.com/markette-org/markette-server) and
