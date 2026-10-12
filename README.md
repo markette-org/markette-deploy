@@ -134,6 +134,21 @@ Under **Settings → Notifications**, workspace admins add destinations and choo
 Failed deliveries are retried for about 8 hours (1 min, 5 min, 30 min, 2 h, 6 h). A destination that
 fails 20 times in a row is switched off. Each one has a delivery log and a **Send a test** button.
 
+### Link tracking (UTM tags and short links)
+
+In **Settings → Workspace → Link tracking**, admins can turn on, for social posts only (blogs and newsletters
+keep clean canonical links):
+
+- **UTM tags**: `utm_source` (the network, e.g. `bluesky`), `utm_medium` (default `social`), `utm_campaign`
+  (the post's campaign, or `markette`) and `utm_content` (`post-<id>`). Parameters already in a link win.
+- **Short links**: `{SHORT_LINK_BASE}/l/<code>`, one per publication and link, redirecting to the (tagged)
+  address. Clicks are counted per publication and per day, without link previews and crawlers. They show on
+  the post's page and as *Link clicks* in Analytics.
+
+Only links to **your sites** are touched: the domains listed there (subdomains included), or, when none are
+listed, the post's own link. That includes the address an announcement points to. `SHORT_LINK_BASE` defaults
+to `PUBLIC_API_URL`; point a short domain at the API and set it to get shorter links.
+
 ### Best time to post
 
 `insights/engine.py` keeps a 7×24 grid of scores (weekday × local hour) per channel:
