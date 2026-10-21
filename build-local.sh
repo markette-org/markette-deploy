@@ -13,4 +13,11 @@ TAG="${MARKETTE_VERSION:-latest}"
 export BUILDX_NO_DEFAULT_ATTESTATIONS=1
 docker build -t "ghcr.io/markette-org/markette-server:$TAG" "${SERVER_SRC:-../markette-server}"
 docker build -t "ghcr.io/markette-org/markette-web:$TAG" "${WEB_SRC:-../markette-web}"
+case ",${COMPOSE_PROFILES:-}," in
+  *,uploader,*)
+    docker build -f "${SERVER_SRC:-../markette-server}/Dockerfile.uploader" \
+      --build-arg BASE="ghcr.io/markette-org/markette-server:$TAG" \
+      -t "ghcr.io/markette-org/markette-uploader:$TAG" "${SERVER_SRC:-../markette-server}"
+    ;;
+esac
 docker compose up -d --no-build

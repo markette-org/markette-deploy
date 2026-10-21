@@ -134,6 +134,37 @@ Under **Settings → Notifications**, workspace admins add destinations and choo
 Failed deliveries are retried for about 8 hours (1 min, 5 min, 30 min, 2 h, 6 h). A destination that
 fails 20 times in a row is switched off. Each one has a delivery log and a **Send a test** button.
 
+### Adult platforms (hand-off and upload bot)
+
+Pornhub, YouPorn, RedTube, xHamster, OnlyFans and Fansly appear in an **Adult** group once a workspace admin
+turns on **Settings → Workspace → Adult platforms**. Turning it on requires confirming that:
+
+- everyone depicted is 18 or older and agreed to the publication;
+- the accounts used belong to the performers who authorized the posting;
+- the records each platform requires are kept.
+
+Markette stores who confirmed it and when. Workspaces without the switch never see these channels.
+
+None of these sites has an upload API, so publishing is a **hand-off**. At the scheduled time the publication
+becomes *Ready to upload*, holding the file, title, description, tags and a link to the site's upload page.
+A `publication.handoff` notification goes out (email, Telegram, webhook). Someone uploads it and pastes the
+new post's address: from that address Markette reads the post's id, collects views (Pornhub, YouPorn and
+RedTube, via the public Aylo webmaster APIs), and releases announcements waiting for it. *Not uploading it*
+cancels the publication.
+
+**Upload bot (optional).** A channel can switch to the upload bot after pasting the account's session (its
+cookies, exported from a signed-in browser):
+
+- It runs in the separate `uploader` container (Playwright + Chromium), started with
+  `COMPOSE_PROFILES=uploader` and `UPLOAD_BOT_ENABLED=true`; `build-local.sh` builds its image.
+- It follows per-site steps that are editable on the channel. The defaults use generic selectors and have not
+  been tested on the sites' signed-in pages: run **Test the upload bot**, which opens the upload page and
+  checks the session and the form without uploading.
+- It never solves CAPTCHAs or works around the sites' checks. Anything it cannot finish becomes a hand-off,
+  flagged "may already be on the site" if it got past the submit step.
+- Automating uploads can break a site's terms. Aylo blocks some countries (France among them), so a server
+  there cannot reach Pornhub or YouPorn at all: no views, and no bot.
+
 ### Importing past posts
 
 **Import past posts** on a channel brings in up to 200 of the account's latest posts (500 through the API:

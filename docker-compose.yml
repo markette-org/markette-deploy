@@ -79,6 +79,25 @@ services:
     depends_on:
       - api
 
+  # Optional upload bot for sites without an upload API (adult platforms). Needs a Chromium-capable
+  # image: enable with COMPOSE_PROFILES=uploader and UPLOAD_BOT_ENABLED=true (build-local.sh builds it).
+  uploader:
+    <<: *server
+    image: ghcr.io/markette-org/markette-uploader:${MARKETTE_VERSION:-latest}
+    profiles: ["uploader"]
+    command: celery -A markette worker -Q uploads --concurrency 1 --loglevel=INFO
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: "5432"
+      REDIS_URL: redis://redis:6379/0
+      MEDIA_ROOT: /app/media
+      HUGO_WORKDIR: /app/var/hugo
+      MARKETTE_UPLOADER: "1"
+    shm_size: "1gb"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
   web:
     image: ghcr.io/markette-org/markette-web:${MARKETTE_VERSION:-latest}
     ports:
