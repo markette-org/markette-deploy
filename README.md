@@ -134,6 +134,26 @@ Under **Settings → Notifications**, workspace admins add destinations and choo
 Failed deliveries are retried for about 8 hours (1 min, 5 min, 30 min, 2 h, 6 h). A destination that
 fails 20 times in a row is switched off. Each one has a delivery log and a **Send a test** button.
 
+### Telegram as a personal account (client API)
+
+Besides the bot-based **Telegram** channel, **Telegram (personal account)** signs in as a person through
+Telegram's client API (MTProto, via Telethon):
+
+1. Get an API ID and hash at my.telegram.org → *API development tools*.
+2. Enter them with the phone number.
+3. Type the code Telegram sends, and the two-step verification password if the account has one.
+4. Pick the chats.
+
+The session is stored encrypted. Each picked chat (channel, group or person) becomes a channel published to as
+the account; channel posts get their views, forwards, replies and reactions as metrics, and can be edited
+afterwards.
+
+Every account also gets a **Direct messages** channel. It is not published to: it brings the account's
+private chats into the **Inbox** about every 2 minutes, where they can be answered. Replies and mentions in the
+chats you publish to arrive there too. Anyone holding the session can act as the account: connect only
+accounts you are allowed to manage. Telegram limits how fast an account can send ("FloodWait"); Markette waits
+as asked.
+
 ### Adult platforms (hand-off and upload bot)
 
 Pornhub, YouPorn, RedTube, xHamster, OnlyFans and Fansly appear in an **Adult** group once a workspace admin
