@@ -156,7 +156,8 @@ as asked.
 
 ### Adult platforms (hand-off and upload bot)
 
-Pornhub, YouPorn, RedTube, xHamster, OnlyFans and Fansly appear in an **Adult** group once a workspace admin
+Pornhub, YouPorn, RedTube, xHamster, XVideos, XNXX, SpankBang, Eporner, ManyVids, Clips4Sale, OnlyFans, Fansly
+and Fanvue appear in an **Adult** group once a workspace admin
 turns on **Settings → Workspace → Adult platforms**. Turning it on requires confirming that:
 
 - everyone depicted is 18 or older and agreed to the publication;
@@ -165,11 +166,20 @@ turns on **Settings → Workspace → Adult platforms**. Turning it on requires 
 
 Markette stores who confirmed it and when. Workspaces without the switch never see these channels.
 
-None of these sites has an upload API, so publishing is a **hand-off**. At the scheduled time the publication
+**Fanvue** has an official API, so it publishes directly:
+
+- **Sign-in:** OAuth with PKCE, using a Fanvue app created by a KYC-verified creator (`FANVUE_CLIENT_ID` /
+  `FANVUE_CLIENT_SECRET`, redirect `{PUBLIC_API_URL}/api/oauth/fanvue/callback`).
+- **Posts:** text and media, uploaded in parts and attached once Fanvue has processed them. The audience is
+  subscribers, or followers and subscribers; an optional unlock price starts at 3.00.
+- **Afterwards:** posts can be edited; likes and comments are collected as metrics; comments arrive in the
+  inbox, where they can be answered; past posts can be imported.
+
+The other sites have no upload API, so publishing is a **hand-off**. At the scheduled time the publication
 becomes *Ready to upload*, holding the file, title, description, tags and a link to the site's upload page.
 A `publication.handoff` notification goes out (email, Telegram, webhook). Someone uploads it and pastes the
 new post's address: from that address Markette reads the post's id, collects views (Pornhub, YouPorn and
-RedTube, via the public Aylo webmaster APIs), and releases announcements waiting for it. *Not uploading it*
+RedTube via the public Aylo webmaster APIs, Eporner via its public API), and releases announcements waiting for it. *Not uploading it*
 cancels the publication.
 
 **Upload bot (optional).** A channel can switch to the upload bot after pasting the account's session (its
